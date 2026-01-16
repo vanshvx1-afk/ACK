@@ -1,0 +1,1383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vansh | Frontend Developer Portfolio</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#6366f1',
+                        'primary-dark': '#4f46e5',
+                        'secondary': '#8b5cf6',
+                        'accent': '#06b6d4',
+                        'dark': '#0a0a0f',
+                        'dark-light': '#13131a',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #13131a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #4f46e5, #7c3aed);
+        }
+        
+        /* Custom Cursor */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: #6366f1;
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9998;
+            transition: width 0.3s, height 0.3s, border-color 0.3s;
+        }
+        
+        .cursor-ring.hover {
+            width: 60px;
+            height: 60px;
+            border-color: #8b5cf6;
+        }
+        
+        /* Three.js Canvas */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Navbar */
+        .navbar {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .navbar.scrolled {
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 400px;
+            height: 100vh;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 100px 40px;
+        }
+        
+        .mobile-menu.active {
+            right: 0;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Hamburger */
+        .hamburger {
+            width: 30px;
+            height: 20px;
+            position: relative;
+            cursor: pointer;
+            z-index: 101;
+        }
+        
+        .hamburger span {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 50%; transform: translateY(-50%); }
+        .hamburger span:nth-child(3) { bottom: 0; }
+        
+        .hamburger.active span:nth-child(1) {
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            bottom: 50%;
+            transform: translateY(50%) rotate(-45deg);
+        }
+        
+        /* Floating Icons */
+        .floating-icon {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        /* Skills Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .marquee-content {
+            display: inline-flex;
+            animation: marquee 30s linear infinite;
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .skill-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            margin: 0 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .skill-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Rotating Text Circle */
+        .rotating-text {
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent, #6366f1, #8b5cf6, transparent);
+        }
+        
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 60px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            border: 4px solid #0a0a0f;
+            z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-dot {
+                left: 20px;
+            }
+        }
+        
+        /* Horizontal Scroll Section */
+        .horizontal-scroll-container {
+            height: 300vh;
+        }
+        
+        .horizontal-scroll-wrapper {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .horizontal-track {
+            display: flex;
+            gap: 40px;
+            padding: 0 5vw;
+            will-change: transform;
+        }
+        
+        .project-card {
+            flex-shrink: 0;
+            width: 400px;
+            height: 500px;
+        }
+        
+        @media (max-width: 768px) {
+            .project-card {
+                width: 320px;
+                height: 420px;
+            }
+        }
+        
+        /* Section Title */
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+        
+        /* Glow Effects */
+        .glow {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+        }
+        
+        /* Responsive cursor hide on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-dot, .cursor-ring {
+                display: none;
+            }
+            body {
+                cursor: auto;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter">
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+    
+    <!-- Three.js Canvas -->
+    <canvas id="three-canvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 py-5 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#home" class="text-2xl font-bold gradient-text">Vansh</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden lg:flex items-center gap-8">
+                <a href="#home" class="nav-link text-gray-300 hover:text-white">Home</a>
+                <a href="#about" class="nav-link text-gray-300 hover:text-white">About</a>
+                <a href="#experience" class="nav-link text-gray-300 hover:text-white">Experience</a>
+                <a href="#projects" class="nav-link text-gray-300 hover:text-white">Projects</a>
+                <a href="#education" class="nav-link text-gray-300 hover:text-white">Education</a>
+                <a href="#contact" class="nav-link text-gray-300 hover:text-white">Contact</a>
+            </div>
+            
+            <a href="#contact" class="hidden lg:inline-block btn-primary text-white">
+                Let's Talk
+            </a>
+            
+            <!-- Mobile Hamburger -->
+            <div class="hamburger lg:hidden" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="flex flex-col gap-8">
+            <a href="#home" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Home</a>
+            <a href="#about" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">About</a>
+            <a href="#experience" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Experience</a>
+            <a href="#projects" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Projects</a>
+            <a href="#education" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Education</a>
+            <a href="#contact" class="text-2xl font-medium text-gray-300 hover:text-white transition-colors mobile-link">Contact</a>
+            <a href="#contact" class="btn-primary text-white text-center mt-4">Let's Talk</a>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden px-6">
+        <!-- Floating Tech Icons -->
+        <div class="floating-icon top-[20%] left-[10%] hidden lg:block" style="animation-delay: 0s;">
+            <div class="glass p-4 rounded-xl">
+                <i class="fa-brands fa-react text-4xl text-cyan-400"></i>
+            </div>
+        </div>
+        <div class="floating-icon top-[15%] right-[15%] hidden lg:block" style="animation-delay: 1s;">
+            <div class="glass p-4 rounded-xl">
+                <i class="fa-brands fa-js text-4xl text-yellow-400"></i>
+            </div>
+        </div>
+        <div class="floating-icon bottom-[25%] left-[8%] hidden lg:block" style="animation-delay: 2s;">
+            <div class="glass p-4 rounded-xl">
+                <i class="fa-brands fa-vuejs text-4xl text-green-400"></i>
+            </div>
+        </div>
+        <div class="floating-icon bottom-[20%] right-[10%] hidden lg:block" style="animation-delay: 3s;">
+            <div class="glass p-4 rounded-xl">
+                <i class="fa-brands fa-css3-alt text-4xl text-blue-400"></i>
+            </div>
+        </div>
+        <div class="floating-icon top-[40%] left-[5%] hidden xl:block" style="animation-delay: 1.5s;">
+            <div class="glass p-4 rounded-xl">
+                <i class="fa-brands fa-node-js text-4xl text-green-500"></i>
+            </div>
+        </div>
+        <div class="floating-icon top-[60%] right-[5%] hidden xl:block" style="animation-delay: 2.5s;">
+            <div class="glass p-4 rounded-xl">
+                <i class="fa-brands fa-figma text-4xl text-pink-400"></i>
+            </div>
+        </div>
+        
+        <!-- Hero Content -->
+        <div class="text-center max-w-4xl mx-auto relative z-10">
+            <div class="hero-content">
+                <p class="hero-subtitle text-primary font-medium text-lg mb-4 opacity-0">Hello, I'm</p>
+                <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl font-bold mb-6 opacity-0">
+                    <span class="gradient-text text-glow">Frontend</span><br>
+                    <span class="text-white">Developer</span>
+                </h1>
+                <p class="hero-desc text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed opacity-0">
+                    Crafting immersive digital experiences with cutting-edge technologies. 
+                    Specializing in React, Vue, and modern JavaScript frameworks to build 
+                    performant, accessible, and visually stunning web applications.
+                </p>
+                <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center opacity-0">
+                    <a href="#projects" class="btn-primary text-white inline-flex items-center justify-center gap-2">
+                        <span>View My Work</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="#contact" class="glass px-8 py-4 text-white font-medium hover:bg-white/10 transition-colors inline-flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>Get In Touch</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-0 scroll-indicator">
+            <div class="flex flex-col items-center gap-2 text-gray-500">
+                <span class="text-sm">Scroll Down</span>
+                <div class="w-6 h-10 border-2 border-gray-600 rounded-full flex justify-center pt-2">
+                    <div class="w-1.5 h-3 bg-primary rounded-full animate-bounce"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Skills Marquee -->
+    <section class="py-16 border-y border-white/5">
+        <div class="marquee-container">
+            <div class="marquee-content">
+                <div class="skill-item">
+                    <i class="fa-brands fa-react text-cyan-400 text-xl"></i>
+                    <span>React</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-vuejs text-green-400 text-xl"></i>
+                    <span>Vue.js</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-js text-yellow-400 text-xl"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-html5 text-orange-500 text-xl"></i>
+                    <span>HTML5</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-css3-alt text-blue-400 text-xl"></i>
+                    <span>CSS3</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-sass text-pink-400 text-xl"></i>
+                    <span>Sass</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-solid fa-wind text-cyan-300 text-xl"></i>
+                    <span>Tailwind CSS</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-node-js text-green-500 text-xl"></i>
+                    <span>Node.js</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-git-alt text-orange-400 text-xl"></i>
+                    <span>Git</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-figma text-pink-500 text-xl"></i>
+                    <span>Figma</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-solid fa-cube text-purple-400 text-xl"></i>
+                    <span>Three.js</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-npm text-red-500 text-xl"></i>
+                    <span>npm</span>
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="skill-item">
+                    <i class="fa-brands fa-react text-cyan-400 text-xl"></i>
+                    <span>React</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-vuejs text-green-400 text-xl"></i>
+                    <span>Vue.js</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-js text-yellow-400 text-xl"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-html5 text-orange-500 text-xl"></i>
+                    <span>HTML5</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-css3-alt text-blue-400 text-xl"></i>
+                    <span>CSS3</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-sass text-pink-400 text-xl"></i>
+                    <span>Sass</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-solid fa-wind text-cyan-300 text-xl"></i>
+                    <span>Tailwind CSS</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-node-js text-green-500 text-xl"></i>
+                    <span>Node.js</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-git-alt text-orange-400 text-xl"></i>
+                    <span>Git</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-figma text-pink-500 text-xl"></i>
+                    <span>Figma</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-solid fa-cube text-purple-400 text-xl"></i>
+                    <span>Three.js</span>
+                </div>
+                <div class="skill-item">
+                    <i class="fa-brands fa-npm text-red-500 text-xl"></i>
+                    <span>npm</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Image Container -->
+                <div class="about-image opacity-0">
+                    <div class="glass p-4 rounded-3xl glow relative group">
+                        <div class="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                            <div class="text-center p-8">
+                                <i class="fa-solid fa-code text-8xl text-primary mb-4"></i>
+                                <p class="text-gray-400">Creative Developer</p>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 glass p-4 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-check-circle text-green-400 mr-2"></i>
+                            <span class="text-sm">Available for work</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content -->
+                <div class="about-content opacity-0">
+                    <h2 class="section-title text-4xl md:text-5xl font-bold mb-8">About Me</h2>
+                    <p class="text-gray-400 text-lg leading-relaxed mb-6">
+                        I'm a passionate frontend developer with a deep love for creating beautiful, 
+                        functional, and user-centric digital experiences. With expertise in modern 
+                        JavaScript frameworks and a keen eye for design, I bridge the gap between 
+                        aesthetics and functionality.
+                    </p>
+                    <p class="text-gray-400 text-lg leading-relaxed mb-8">
+                        My journey in web development started with curiosity and has evolved into a 
+                        commitment to excellence. I believe in clean code, intuitive interfaces, and 
+                        the power of technology to solve real-world problems. Every project is an 
+                        opportunity to learn, grow, and push creative boundaries.
+                    </p>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="glass-card p-6">
+                            <h3 class="text-3xl font-bold gradient-text mb-2">50+</h3>
+                            <p class="text-gray-400">Projects Completed</p>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h3 class="text-3xl font-bold gradient-text mb-2">30+</h3>
+                            <p class="text-gray-400">Happy Clients</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Portfolio Highlight -->
+    <section class="py-24 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-16">
+            <!-- Rotating Circle -->
+            <div class="highlight-circle opacity-0 relative w-64 h-64 md:w-80 md:h-80">
+                <svg class="rotating-text w-full h-full" viewBox="0 0 200 200">
+                    <defs>
+                        <path id="circlePath" d="M100,100 m-75,0 a75,75 0 1,1 150,0 a75,75 0 1,1 -150,0"/>
+                    </defs>
+                    <text fill="rgba(255,255,255,0.5)" font-size="12" font-weight="500" letter-spacing="3">
+                        <textPath href="#circlePath">
+                            FRONTEND DEVELOPER • CREATIVE CODER • UI ENTHUSIAST • 
+                        </textPath>
+                    </text>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                        <span class="text-6xl md:text-7xl font-bold gradient-text text-glow">3+</span>
+                        <p class="text-gray-400 mt-2">Years Experience</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Highlight Content -->
+            <div class="highlight-content opacity-0 max-w-md text-center lg:text-left">
+                <h3 class="text-3xl md:text-4xl font-bold mb-6">
+                    Building the <span class="gradient-text">Future</span> of Web
+                </h3>
+                <p class="text-gray-400 text-lg leading-relaxed">
+                    Dedicated to pushing the boundaries of web development, 
+                    combining cutting-edge technologies with timeless design principles 
+                    to create digital experiences that inspire and engage.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Experience Section -->
+    <section id="experience" class="py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="section-title text-4xl md:text-5xl font-bold inline-block experience-title opacity-0">Experience</h2>
+            </div>
+            
+            <div class="timeline">
+                <!-- Timeline Item 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="md:text-right md:pr-16 timeline-content opacity-0">
+                            <div class="glass-card p-8">
+                                <span class="text-primary font-medium">2023 - Present</span>
+                                <h3 class="text-2xl font-bold mt-2 mb-4">Senior Frontend Developer</h3>
+                                <p class="text-gray-400 mb-4">TechCorp Innovation Labs</p>
+                                <ul class="text-gray-500 text-sm space-y-2">
+                                    <li>• Led development of enterprise React applications</li>
+                                    <li>• Implemented micro-frontend architecture</li>
+                                    <li>• Mentored junior developers</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="md:pl-16"></div>
+                    </div>
+                </div>
+                
+                <!-- Timeline Item 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="md:pr-16"></div>
+                        <div class="md:pl-16 timeline-content opacity-0">
+                            <div class="glass-card p-8">
+                                <span class="text-primary font-medium">2022 - 2023</span>
+                                <h3 class="text-2xl font-bold mt-2 mb-4">Frontend Developer</h3>
+                                <p class="text-gray-400 mb-4">Digital Solutions Agency</p>
+                                <ul class="text-gray-500 text-sm space-y-2">
+                                    <li>• Built responsive web applications with Vue.js</li>
+                                    <li>• Optimized performance for better UX</li>
+                                    <li>• Collaborated with design team</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline Item 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="md:text-right md:pr-16 timeline-content opacity-0">
+                            <div class="glass-card p-8">
+                                <span class="text-primary font-medium">2021 - 2022</span>
+                                <h3 class="text-2xl font-bold mt-2 mb-4">Junior Developer</h3>
+                                <p class="text-gray-400 mb-4">StartUp Ventures</p>
+                                <ul class="text-gray-500 text-sm space-y-2">
+                                    <li>• Developed features for SaaS platform</li>
+                                    <li>• Learned modern frontend practices</li>
+                                    <li>• Contributed to open-source projects</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="md:pl-16"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Projects Section - Horizontal Scroll -->
+    <section id="projects" class="horizontal-scroll-container">
+        <div class="horizontal-scroll-wrapper flex items-center">
+            <div class="px-6 lg:px-12">
+                <div class="mb-8">
+                    <h2 class="section-title text-4xl md:text-5xl font-bold inline-block projects-title opacity-0">Featured Projects</h2>
+                    <p class="text-gray-400 mt-6 max-w-xl projects-desc opacity-0">Scroll to explore my latest work and creative experiments</p>
+                </div>
+                
+                <div class="horizontal-track" id="projectsTrack">
+                    <!-- Project 1 -->
+                    <div class="project-card glass-card p-8 flex flex-col">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-shopping-cart text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">E-Commerce Platform</h3>
+                        <p class="text-gray-400 mb-6 flex-grow">A full-featured online store with React, Redux, and Stripe integration. Features include real-time inventory, cart management, and seamless checkout.</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-primary">React</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-primary">Redux</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-primary">Stripe</span>
+                        </div>
+                        <a href="#" class="text-primary font-medium inline-flex items-center gap-2 hover:gap-4 transition-all">
+                            View Project <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Project 2 -->
+                    <div class="project-card glass-card p-8 flex flex-col">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-chart-line text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Analytics Dashboard</h3>
+                        <p class="text-gray-400 mb-6 flex-grow">Interactive data visualization dashboard with real-time updates, custom charts, and advanced filtering capabilities for enterprise clients.</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-green-400">Vue.js</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-green-400">D3.js</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-green-400">WebSocket</span>
+                        </div>
+                        <a href="#" class="text-green-400 font-medium inline-flex items-center gap-2 hover:gap-4 transition-all">
+                            View Project <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Project 3 -->
+                    <div class="project-card glass-card p-8 flex flex-col">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-palette text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Creative Portfolio</h3>
+                        <p class="text-gray-400 mb-6 flex-grow">Award-winning portfolio website featuring immersive 3D experiences, smooth animations, and innovative navigation for a digital artist.</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-pink-400">Three.js</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-pink-400">GSAP</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-pink-400">WebGL</span>
+                        </div>
+                        <a href="#" class="text-pink-400 font-medium inline-flex items-center gap-2 hover:gap-4 transition-all">
+                            View Project <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Project 4 -->
+                    <div class="project-card glass-card p-8 flex flex-col">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-mobile-screen text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Social Mobile App</h3>
+                        <p class="text-gray-400 mb-6 flex-grow">Cross-platform mobile application with real-time messaging, media sharing, and social networking features using React Native.</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-cyan-400">React Native</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-cyan-400">Firebase</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-cyan-400">Redux</span>
+                        </div>
+                        <a href="#" class="text-cyan-400 font-medium inline-flex items-center gap-2 hover:gap-4 transition-all">
+                            View Project <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Project 5 -->
+                    <div class="project-card glass-card p-8 flex flex-col">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-utensils text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Restaurant Platform</h3>
+                        <p class="text-gray-400 mb-6 flex-grow">Complete restaurant management system with online ordering, table reservations, and real-time kitchen display for improved operations.</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-orange-400">Next.js</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-orange-400">Prisma</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-orange-400">PostgreSQL</span>
+                        </div>
+                        <a href="#" class="text-orange-400 font-medium inline-flex items-center gap-2 hover:gap-4 transition-all">
+                            View Project <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Project 6 -->
+                    <div class="project-card glass-card p-8 flex flex-col">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-robot text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">AI Chat Interface</h3>
+                        <p class="text-gray-400 mb-6 flex-grow">Modern conversational AI interface with streaming responses, context memory, and intelligent suggestions powered by GPT integration.</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-violet-400">React</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-violet-400">OpenAI</span>
+                            <span class="px-3 py-1 text-xs bg-white/5 rounded-full text-violet-400">Tailwind</span>
+                        </div>
+                        <a href="#" class="text-violet-400 font-medium inline-flex items-center gap-2 hover:gap-4 transition-all">
+                            View Project <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Education Section -->
+    <section id="education" class="py-32 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="section-title text-4xl md:text-5xl font-bold inline-block education-title opacity-0">Education</h2>
+            </div>
+            
+            <div class="education-content opacity-0">
+                <div class="glass p-8 md:p-12 glow">
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-graduation-cap text-3xl text-white"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <span class="text-primary font-medium">2018 - 2022</span>
+                            <h3 class="text-2xl md:text-3xl font-bold mt-2 mb-4">Bachelor of Science in Computer Science</h3>
+                            <p class="text-gray-300 text-lg mb-4">University of Technology</p>
+                            <p class="text-gray-400 leading-relaxed mb-6">
+                                Specialized in Software Engineering with focus on web technologies and human-computer interaction. 
+                                Graduated with honors and completed thesis on "Improving Web Performance Through Modern JavaScript Optimization Techniques."
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="px-4 py-2 glass-card text-sm">Web Development</span>
+                                <span class="px-4 py-2 glass-card text-sm">UI/UX Design</span>
+                                <span class="px-4 py-2 glass-card text-sm">Data Structures</span>
+                                <span class="px-4 py-2 glass-card text-sm">Algorithms</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 pt-12 border-t border-white/10">
+                        <h4 class="text-xl font-bold mb-6">Certifications</h4>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="glass-card p-6 flex items-center gap-4">
+                                <i class="fa-brands fa-aws text-3xl text-orange-400"></i>
+                                <div>
+                                    <p class="font-medium">AWS Certified Developer</p>
+                                    <p class="text-gray-500 text-sm">Amazon Web Services</p>
+                                </div>
+                            </div>
+                            <div class="glass-card p-6 flex items-center gap-4">
+                                <i class="fa-brands fa-google text-3xl text-blue-400"></i>
+                                <div>
+                                    <p class="font-medium">Google UX Design</p>
+                                    <p class="text-gray-500 text-sm">Google Career Certificates</p>
+                                </div>
+                            </div>
+                            <div class="glass-card p-6 flex items-center gap-4">
+                                <i class="fa-brands fa-meta text-3xl text-blue-500"></i>
+                                <div>
+                                    <p class="font-medium">Meta Frontend Developer</p>
+                                    <p class="text-gray-500 text-sm">Meta Professional Certificate</p>
+                                </div>
+                            </div>
+                            <div class="glass-card p-6 flex items-center gap-4">
+                                <i class="fa-solid fa-certificate text-3xl text-green-400"></i>
+                                <div>
+                                    <p class="font-medium">Advanced React Patterns</p>
+                                    <p class="text-gray-500 text-sm">Frontend Masters</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-32 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="contact-content opacity-0">
+                <span class="text-primary font-medium text-lg mb-4 inline-block">Get In Touch</span>
+                <h2 class="text-4xl md:text-6xl font-bold mb-8">
+                    Let's Build Something<br>
+                    <span class="gradient-text text-glow">Amazing Together</span>
+                </h2>
+                <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+                    I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision. 
+                    Let's connect and explore how we can create exceptional digital experiences.
+                </p>
+                
+                <a href="mailto:vansh@example.com" class="inline-flex items-center gap-4 glass px-8 py-6 rounded-2xl group hover:bg-white/5 transition-all">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <i class="fa-solid fa-envelope text-xl text-white"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-gray-400 text-sm">Drop me an email at</p>
+                        <p class="text-xl md:text-2xl font-medium text-white group-hover:text-primary transition-colors">vansh@example.com</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-2xl text-gray-600 group-hover:text-primary group-hover:translate-x-2 transition-all ml-4"></i>
+                </a>
+                
+                <div class="mt-16 flex justify-center gap-6">
+                    <a href="#" class="w-14 h-14 glass rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors group">
+                        <i class="fa-brands fa-github text-2xl text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                    <a href="#" class="w-14 h-14 glass rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors group">
+                        <i class="fa-brands fa-linkedin-in text-2xl text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                    <a href="#" class="w-14 h-14 glass rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors group">
+                        <i class="fa-brands fa-twitter text-2xl text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                    <a href="https://instagram.com/vanshcz" target="_blank" class="w-14 h-14 glass rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors group">
+                        <i class="fa-brands fa-instagram text-2xl text-gray-400 group-hover:text-white transition-colors"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-500 mb-4">© 2025 vanshcz. All rights reserved.</p>
+            <p class="text-gray-600 text-sm mb-4">Crafting digital experiences from the future.</p>
+            <a href="https://instagram.com/vanshcz" target="_blank" class="text-gray-400 hover:text-primary transition-colors inline-flex items-center gap-2">
+                <i class="fa-brands fa-instagram"></i>
+                <span>@vanshcz</span>
+            </a>
+        </div>
+    </footer>
+    
+    <script>
+        // Register GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // ========== Custom Cursor ==========
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorRing = document.querySelector('.cursor-ring');
+        
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            gsap.to(cursorDot, {
+                x: mouseX - 4,
+                y: mouseY - 4,
+                duration: 0.1
+            });
+        });
+        
+        // Smooth ring follow
+        function animateRing() {
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            
+            cursorRing.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px)`;
+            requestAnimationFrame(animateRing);
+        }
+        animateRing();
+        
+        // Cursor hover effects
+        const hoverElements = document.querySelectorAll('a, button, .glass-card, .skill-item');
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
+        });
+        
+        // ========== Three.js Starfield ==========
+        const canvas = document.getElementById('three-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Create starfield
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 5000;
+        const posArray = new Float32Array(starsCount * 3);
+        
+        for (let i = 0; i < starsCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 100;
+        }
+        
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
+        const starsMaterial = new THREE.PointsMaterial({
+            size: 0.08,
+            color: 0x6366f1,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true
+        });
+        
+        const starsMesh = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(starsMesh);
+        
+        // Add second layer of stars
+        const starsGeometry2 = new THREE.BufferGeometry();
+        const posArray2 = new Float32Array(starsCount * 3);
+        
+        for (let i = 0; i < starsCount * 3; i++) {
+            posArray2[i] = (Math.random() - 0.5) * 150;
+        }
+        
+        starsGeometry2.setAttribute('position', new THREE.BufferAttribute(posArray2, 3));
+        
+        const starsMaterial2 = new THREE.PointsMaterial({
+            size: 0.05,
+            color: 0x8b5cf6,
+            transparent: true,
+            opacity: 0.5,
+            sizeAttenuation: true
+        });
+        
+        const starsMesh2 = new THREE.Points(starsGeometry2, starsMaterial2);
+        scene.add(starsMesh2);
+        
+        camera.position.z = 30;
+        
+        // Mouse parallax
+        let targetX = 0, targetY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            targetX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+            targetY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            starsMesh.rotation.x += 0.0002;
+            starsMesh.rotation.y += 0.0003;
+            
+            starsMesh2.rotation.x += 0.0001;
+            starsMesh2.rotation.y += 0.0002;
+            
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (-targetY - camera.position.y) * 0.05;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // ========== Mobile Menu ==========
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+        
+        hamburger.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+        mobileLinks.forEach(link => link.addEventListener('click', toggleMenu));
+        
+        // ========== Navbar Scroll Effect ==========
+        const navbar = document.querySelector('.navbar');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // ========== GSAP Animations ==========
+        
+        // Hero animations
+        gsap.timeline({ delay: 0.3 })
+            .to('.hero-subtitle', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0)
+            .to('.hero-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.2)
+            .to('.hero-desc', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.4)
+            .to('.hero-cta', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.6)
+            .to('.scroll-indicator', { opacity: 1, duration: 0.8, ease: 'power3.out' }, 0.8);
+        
+        // Set initial states
+        gsap.set(['.hero-subtitle', '.hero-title', '.hero-desc', '.hero-cta'], { y: 30 });
+        
+        // About section
+        ScrollTrigger.create({
+            trigger: '#about',
+            start: 'top 80%',
+            onEnter: () => {
+                gsap.to('.about-image', { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' });
+                gsap.to('.about-content', { opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' });
+            }
+        });
+        gsap.set('.about-image', { x: -50 });
+        gsap.set('.about-content', { x: 50 });
+        
+        // Portfolio highlight
+        ScrollTrigger.create({
+            trigger: '.highlight-circle',
+            start: 'top 80%',
+            onEnter: () => {
+                gsap.to('.highlight-circle', { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)' });
+                gsap.to('.highlight-content', { opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' });
+            }
+        });
+        gsap.set('.highlight-circle', { scale: 0.8 });
+        gsap.set('.highlight-content', { x: 50 });
+        
+        // Experience section
+        ScrollTrigger.create({
+            trigger: '#experience',
+            start: 'top 80%',
+            onEnter: () => {
+                gsap.to('.experience-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+            }
+        });
+        gsap.set('.experience-title', { y: 30 });
+        
+        // Timeline items
+        gsap.utils.toArray('.timeline-content').forEach((item, i) => {
+            gsap.set(item, { x: i % 2 === 0 ? -50 : 50 });
+            ScrollTrigger.create({
+                trigger: item,
+                start: 'top 85%',
+                onEnter: () => {
+                    gsap.to(item, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' });
+                }
+            });
+        });
+        
+        // Projects section - horizontal scroll
+        const projectsSection = document.querySelector('.horizontal-scroll-container');
+        const track = document.getElementById('projectsTrack');
+        
+        if (window.innerWidth > 768) {
+            const trackWidth = track.scrollWidth;
+            const viewportWidth = window.innerWidth;
+            
+            gsap.to(track, {
+                x: -(trackWidth - viewportWidth + 100),
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: projectsSection,
+                    start: 'top top',
+                    end: () => `+=${trackWidth}`,
+                    scrub: 1,
+                    pin: true,
+                    anticipatePin: 1
+                }
+            });
+        }
+        
+        // Projects title animation
+        ScrollTrigger.create({
+            trigger: '#projects',
+            start: 'top 80%',
+            onEnter: () => {
+                gsap.to('.projects-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+                gsap.to('.projects-desc', { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' });
+            }
+        });
+        gsap.set('.projects-title', { y: 30 });
+        gsap.set('.projects-desc', { y: 30 });
+        
+        // Education section
+        ScrollTrigger.create({
+            trigger: '#education',
+            start: 'top 80%',
+            onEnter: () => {
+                gsap.to('.education-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+                gsap.to('.education-content', { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' });
+            }
+        });
+        gsap.set('.education-title', { y: 30 });
+        gsap.set('.education-content', { y: 50 });
+        
+        // Contact section
+        ScrollTrigger.create({
+            trigger: '#contact',
+            start: 'top 80%',
+            onEnter: () => {
+                gsap.to('.contact-content', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+            }
+        });
+        gsap.set('.contact-content', { y: 50 });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    gsap.to(window, {
+                        duration: 1,
+                        scrollTo: { y: target, offsetY: 80 },
+                        ease: 'power3.inOut'
+                    });
+                }
+            });
+        });
+        
+        // Refresh ScrollTrigger on load
+        window.addEventListener('load', () => {
+            ScrollTrigger.refresh();
+        });
+    </script>
+    
+    <!-- GSAP ScrollTo Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollToPlugin.min.js"></script>
+</body>
+</html>
